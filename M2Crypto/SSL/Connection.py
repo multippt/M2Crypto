@@ -88,6 +88,12 @@ class Connection:
             self.m2_ssl_free(self.ssl)
         self.socket.close()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
     def close(self):
         # type: () -> None
         m2.ssl_shutdown(self.ssl)

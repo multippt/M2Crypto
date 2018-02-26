@@ -326,6 +326,21 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         self.assertIn('s_server -quiet -www', data)
 
+    def test_server_simple_context_manager(self):
+        pid = self.start_server(self.args)
+        try:
+            with self.assertRaises(ValueError):
+                SSL.Context('tlsv5')
+            ctx = SSL.Context()
+            with SSL.Connection(ctx) as s:
+                s.connect(self.srv_addr)
+                with self.assertRaises(ValueError):
+                    s.read(0)
+                data = self.http_get(s)
+        finally:
+            self.stop_server(pid)
+        self.assertIn('s_server -quiet -www', data)
+
     def test_server_simple_secure_context(self):
         pid = self.start_server(self.args)
         try:
