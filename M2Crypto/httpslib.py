@@ -91,21 +91,8 @@ class HTTPSConnection(HTTPConnection):
 
     def close(self):
         # type: () -> None
-        # This kludges around line 545 of httplib.py,
-        # which closes the connection in this object;
-        # the connection remains open in the response
-        # object.
-        #
-        # M2Crypto doesn't close-here-keep-open-there,
-        # so, in effect, we don't close until the whole
-        # business is over and gc kicks in.
-        #
-        # XXX Long-running callers beware leakage.
-        #
-        # XXX 05-Jan-2002: This module works with Python 2.2,
-        # XXX but I've not investigated if the above conditions
-        # XXX remain.
-        pass
+        if self.sock is not None:
+            self.sock.close()
 
     def get_session(self):
         # type: () -> SSL.Session.Session
