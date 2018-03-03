@@ -2,6 +2,7 @@
 M2Crypto
 ========
 
+
 :Maintainer: Matěj Cepl
 :Web-Site: https://gitlab.com/m2crypto/m2crypto
 :Documentation: https://m2crypto.readthedocs.io/
@@ -69,3 +70,35 @@ Have fun! Your feedback is welcome.
 
 .. _`#m2crypto`:
     irc://Freenode/#m2crypto
+
+
+Revised instructions for building M2Crypto on Windows
+-----------------------------------------------------
+
+**Building on Windows (Python 2)**
+
+1. Install Microsoft Visual C++ Compiler 2008 or 2010. (https://www.microsoft.com/en-us/download/details.aspx?id=44266)
+2. Obtain statically compiled OpenSSL libraries and headers built against MSVC 2010. Conveniently cryptography package has done this work and made it available (https://ci.cryptography.io/job/cryptography-support-jobs/job/openssl-release-1.1/). Extract the zip in a convenient location, e.g. `C:\openssl`
+3. Download Swig (https://sourceforge.net/projects/swig/files/swigwin/). Extract to a convenient location, e.g. `C:\swig`
+
+Open `Microsoft Visual C++ 2008~2010 32/64-bit command prompt` (32-bit or 64-bit depending on Python version you are using). Run the following commands to install M2Crypto via pip.
+
+.. code:: bash
+
+    set OPENSSL=C:\openssl
+    set PATH=C:\swig;%PATH%
+    pip install git+https://gitlab.com/multippt/m2crypto.git
+
+**Building on Windows (Python 3)**
+
+1. Install Microsoft Visual C++ Compiler 2015 or newer. (https://www.visualstudio.com/)
+2. Obtain statically compiled OpenSSL libraries and headers built against MSVC 2015 or newer. (https://ci.cryptography.io/job/cryptography-support-jobs/job/openssl-release-1.1/). Extract the zip in a convenient location, e.g. `C:\openssl`
+3. Download Swig 3 or newer (https://sourceforge.net/projects/swig/files/swigwin/). Extract to a convenient location, e.g. `C:\swig`
+
+Open `Microsoft Visual C++ 2015+ 32/64-bit command prompt` (32-bit or 64-bit depending on Python version you are using). Run the following commands to install M2Crypto via pip.
+
+.. code:: bash
+
+    set OPENSSL=C:\openssl
+    set PATH=C:\swig;%PATH%
+    pip install git+https://gitlab.com/multippt/m2crypto.git

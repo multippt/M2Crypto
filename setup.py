@@ -24,6 +24,7 @@ import shutil
 
 from distutils.command import build, sdist
 from distutils.command.clean import clean
+from distutils.command.install import install
 from distutils.dir_util import mkpath
 from distutils.version import StrictVersion
 
@@ -120,10 +121,12 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.openssl = None
         self.bundledlls = None
 
+    openssl_default = None
+
     def finalize_options(self):
         """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
-        self.openssl_default = None
+        # self.openssl_default = None
         self.set_undefined_options('build', ('openssl', 'openssl'))
         if self.openssl is None:
             self.openssl = self.openssl_default
@@ -141,6 +144,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                 # this shortly to come up with a better fix.
                 self.swig_opts.append('-D_MSC_VER=1500')
 
+            # Extra needed for statically compiled openssl
+            self.libraries += ["advapi32", "crypt32", "gdi32", "user32", "ws2_32"]
 
         if sys.version_info[:1] >= (3,):
             self.swig_opts.append('-py3')
@@ -340,6 +345,44 @@ def __get_version():  # noqa
                 return line.split('=')[1].strip(string.whitespace + "'")
 
 
+# Dummy install command to allow accepting --openssl parameter in install
+class InstallCommand(install):
+    user_options = install.user_options + \
+        [('openssl=', 'o', 'Prefix for openssl installation location')] + \
+        [('bundledlls', 'b', 'Bundle DLLs (win32 only)')]
+
+    def initialize_options(self):
+        install.initialize_options(self)
+        self.openssl = None
+        self.bundledlls = None
+
+    def finalize_options(self):
+        install.finalize_options(self)
+
+    def run(self):
+        install.run(self)
+
+# Allow specifying openssl from environment variable
+_M2CryptoBuildExt.openssl_default = os.environ.get("OPENSSL")
+
+# Hack to intercept argv so setuptools don't complain about --openssl option
+print(sys.argv)
+indices_to_remove = []
+for arg in sys.argv:
+    if "--openssl" in arg:
+        index = sys.argv.index(arg)
+        indices_to_remove.append(index)
+        if "=" in arg:
+            _M2CryptoBuildExt.openssl_default = arg.split("=", 1)[-1]
+
+        else:
+            _M2CryptoBuildExt.openssl_default = sys.argv[index + 1]
+            indices_to_remove.append(index + 1)
+        break
+for index in reversed(indices_to_remove):
+    sys.argv.pop(index)
+
+
 long_description_text = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
 DH, EC, HMACs, message digests, symmetric ciphers (including AES); SSL
@@ -388,6 +431,7 @@ setuptools.setup(
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
         'build': _M2CryptoBuild,
-        'clean': Clean
+        'clean': Clean,
+        # 'install': InstallCommand,
     }
 )

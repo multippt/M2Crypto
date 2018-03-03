@@ -274,13 +274,13 @@ const SSL_METHOD *sslv3_method(void) {
 }
 #endif
 
-const SSL_METHOD *tlsv1_method(void) {
+/*const SSL_METHOD *tlsv1_method(void) {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     PyErr_WarnEx(PyExc_DeprecationWarning,
                  "Function TLSv1_method has been deprecated.", 1);
 #endif
     return TLSv1_method();
-}
+}*/
 
 void ssl_ctx_passphrase_callback(SSL_CTX *ctx, PyObject *pyfunc) {
     SSL_CTX_set_default_passwd_cb(ctx, passphrase_callback);
