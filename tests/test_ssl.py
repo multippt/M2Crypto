@@ -37,7 +37,6 @@ except ImportError:
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
                       m2urllib2, m2xmlrpclib, six, util)
-from tests import plat_fedora
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')
@@ -429,7 +428,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context('sslv23', weak_crypto=1)
             s = SSL.Connection(ctx)
             # SSLv2 ciphers disabled by default in newer OpenSSL
-            if plat_fedora and m2.OPENSSL_VERSION_NUMBER < 0x10000000:
+            if m2.OPENSSL_VERSION_NUMBER < 0x10000000:
                 s.connect(self.srv_addr)
                 self.assertEqual(s.get_version(), 'SSLv2')
             else:
